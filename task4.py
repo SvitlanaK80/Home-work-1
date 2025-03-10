@@ -1,47 +1,49 @@
 from datetime import datetime, timedelta
 
+# Список користувачів:
 users = [
-    {"name": "Іван", "birthday": "1990.03.24"},
-    {"name": "Марія", "birthday": "1985.03.14"},
-    {"name": "Петро", "birthday": "1992.03.17"},
-    {"name": "Олена", "birthday": "1989.03.20"},
+    {"name": "Іван", "birthday": "1990.03.10"},
+    {"name": "Марія", "birthday": "1985.03.12"},
+    {"name": "Петро", "birthday": "1992.03.15"},
+    {"name": "Олена", "birthday": "1989.03.17"},
+    {"name": "Андрій", "birthday": "1987.03.18"},
+    {"name": "Оксана", "birthday": "1995.03.20"},
 ]
 
 def get_upcoming_birthdays(users):
-    # Поточна дата (використовуємо реальну поточну дату)
-    today = datetime.today().date()  # Поточна дата
+    today = datetime.today().date()  # Отримуємо поточну дату
     upcoming_birthdays = []
 
     for user in users:
-        # Перетворюємо день народження з рядка у форматі 'рік.місяць.дата' в об'єкт datetime.date
         birthday = datetime.strptime(user["birthday"], "%Y.%m.%d").date()
         
-        # Якщо день народження вже був цього року, використовуємо дату наступного року
-        if birthday < today:
-            birthday = birthday.replace(year=today.year + 1)
-        else:
-            birthday = birthday.replace(year=today.year)
-        
-        # Перевіряємо, чи день народження знаходиться в межах наступного тижня
-        if today <= birthday <= today + timedelta(days=7):
-            # Перевірка, чи день народження припадає на вихідний (субота або неділя)
-            if birthday.weekday() == 5:  # Субота
-                birthday = birthday + timedelta(days=2)  # Переносимо на понеділок
-            elif birthday.weekday() == 6:  # Неділі
-                birthday = birthday + timedelta(days=1)  # Переносимо на понеділок
+        # Замінюємо рік на поточний
+        birthday_this_year = birthday.replace(year=today.year)
+
+        # Якщо день народження вже минув у цьому році, переносимо на наступний рік
+        if birthday_this_year < today:
+            birthday_this_year = birthday.replace(year=today.year + 1)
+
+        # Перевіряємо, чи день народження входить у діапазон 7 днів від сьогодні
+        if today <= birthday_this_year <= today + timedelta(days=7):
+            # Якщо день народження припадає на вихідний, переносимо на наступний понеділок
+            if birthday_this_year.weekday() == 5:  # Субота
+                birthday_this_year += timedelta(days=2)
+            elif birthday_this_year.weekday() == 6:  # Неділя
+                birthday_this_year += timedelta(days=1)
             
-            # Додаємо користувача з оновленою датою привітання
+            # Додаємо користувача до списку привітань
             upcoming_birthdays.append({
                 "name": user["name"],
-                "congratulation_date": birthday.strftime("%Y.%m.%d")
+                "congratulation_date": birthday_this_year.strftime("%Y.%m.%d")
             })
-    
+
     return upcoming_birthdays
 
+# Отримуємо список привітань
 upcoming_birthdays = get_upcoming_birthdays(users)
 
 # Виводимо результати
 print("Список користувачів з найближчими днями народження:")
 for user in upcoming_birthdays:
     print(f"Користувач: {user['name']}, Дата привітання: {user['congratulation_date']}")
-
